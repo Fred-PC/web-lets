@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo e Quiz: Extensão de Cílios - Start Lash</title>
+    <style>
+        :root {
+            --primary-color: #d8bfd8;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --highlight-color: #9370db;
+            --quiz-bg: #fff0f5;
+            --gold-tone: #FFD700;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --card-bg: #ffffff;
+            --correct-green: #4CAF50;
+            --wrong-red: #F44336;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-color: #e0e0e0;
+                --secondary-color: #121212;
+                --card-bg: #1e1e1e;
+                --quiz-bg: #222222;
+                --shadow-color: rgba(255, 255, 255, 0.1);
+            }
+            body {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+            .container, .content-section, .quiz-section {
+                background-color: #1e1e1e;
+            }
+        }
+
+        * {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--secondary-color);
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--card-bg);
+            box-shadow: 0 8px 16px var(--shadow-color);
+            border-radius: 12px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            padding: 30px 20px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            margin: -20px -20px 20px -20px;
+        }
+
+        header h1 {
+            margin: 0 0 5px 0;
+            font-size: 2.2em;
+            color: #4b0082;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 1.1em;
+            font-style: italic;
+            color: #555;
+        }
+
+        h2 {
+            color: var(--highlight-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-top: 35px;
+            font-size: 1.8em;
+        }
+
+        h3 {
+            color: #4b0082;
+            margin-top: 25px;
+            font-size: 1.4em;
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+        }
+
+        .insight {
+            background-color: var(--primary-color);
+            color: #4b0082;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-style: italic;
+            border-left: 6px solid var(--gold-tone);
+        }
+
+        .insight strong {
+            color: #4b0082;
+            font-weight: bold;
+        }
+
+        strong {
+            color: var(--highlight-color);
+            font-weight: bold;
+        }
+
+        /* Quiz Styling */
+        .quiz-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--quiz-bg);
+            border-radius: 12px;
+            border: 1px solid var(--primary-color);
+        }
+
+        .question-block {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .question-text {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .options-group {
+            margin-bottom: 15px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .option-label:active {
+            background-color: #f0f0f0;
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            border: 2px solid #999;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .option-label input[type="radio"]:checked {
+            background-color: var(--highlight-color);
+            border-color: var(--highlight-color);
+        }
+
+        .option-label.correct {
+            background-color: #e8f5e9;
+            border-color: var(--correct-green);
+        }
+
+        .option-label.wrong {
+            background-color: #ffebee;
+            border-color: var(--wrong-red);
+        }
+
+        .feedback-message {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback-message.correct {
+            background-color: var(--correct-green);
+            color: white;
+        }
+
+        .feedback-message.wrong {
+            background-color: var(--wrong-red);
+            color: white;
+        }
+
+        .submit-btn, .reset-btn, .reshuffle-btn {
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+        }
+
+        .submit-btn {
+            background-color: var(--highlight-color);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .submit-btn:active {
+            background-color: #6a5acd;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--highlight-color);
+            margin: 20px 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .reset-btn, .reshuffle-btn {
+            flex: 1;
+            background-color: var(--gold-tone);
+            color: #333;
+        }
+
+        .reset-btn:active, .reshuffle-btn:active {
+            background-color: #ffc700;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 10px;
+            }
+            header {
+                padding: 20px 10px;
+                margin: -10px -10px 15px -10px;
+            }
+            header h1 {
+                font-size: 1.6em;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Formação do Zero ao Topo</h1>
+        <p>Resumo da Aula e Quiz com Seleção Aleatória - Start Lash</p>
+    </header>
+
+    <h2>Resumo da Aula (PT-BR)</h2>
+    
+    <div class="content-section">
+        <h3>1. História e Durabilidade</h3>
+        <p>A técnica de Extensão de Cílios Fio a Fio, como conhecemos hoje, foi popularizada no início do século 21, após a invenção japonesa do cílio artificial, sendo a aplicação em Madonna por <strong>Shu Uemura</strong> em 2003 um marco. A diferença crucial para os cílios postiços é que o Fio a Fio é colado <strong>individualmente</strong> no cílio natural, utilizando um adesivo de cianoacrilato que permite uma durabilidade média de <strong>21 dias</strong>.</p>
+        <p>A <strong>manutenção</strong> é recomendada entre <strong>15 a 20 dias</strong>. É fundamental realizar o cálculo volumétrico e o <strong>visagismo</strong> (análise do formato do rosto e olhos) para escolher o tamanho, curvatura e espessura do fio sintético, garantindo a saúde do fio natural e um resultado estético harmonioso.</p>
+        
+        <div class="insight">
+            <strong>Insight Prático:</strong> O sucesso não está apenas na colagem, mas na <strong>personalização</strong>. O visagismo transforma um serviço técnico em uma experiência de beleza sob medida. A durabilidade depende da escolha correta do peso do fio e da adesão ao cronograma de manutenção.
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h3>2. Anatomia e Química do Fio</h3>
+        <p>O cílio é composto primariamente por <strong>queratina (85%)</strong>, água (12%) e lipídios (3%). Sua estrutura se divide em três camadas: <strong>Cutícula</strong> (proteção externa), <strong>Córtex</strong> (camada principal com queratina e ligações químicas) e <strong>Medula</strong> (sustentação central).</p>
+        <p>No Córtex, existem três tipos de ligações químicas (pontes): <strong>Hidrogênio</strong> (temporárias, rompidas pela água), <strong>Salinas</strong> (intermediárias, alteradas pelo pH) e <strong>Dissulfeto</strong> (permanentes, rompidas apenas por químicas como o lifting).</p>
+        <p>O <strong>pH natural e saudável</strong> do fio é <strong>ácido</strong> (4.2 a 5.8). No entanto, para uma <strong>boa retenção</strong> do adesivo, o fio precisa estar levemente <strong>alcalino</strong>, pois isso abre as cutículas e permite a penetração e ancoragem do adesivo (cianoacrilato, que é ácido).</p>
+        
+        <div class="insight">
+            <strong>Insight Prático:</strong> A retenção é uma dança química. O <strong>Primer</strong> é usado para alcalinizar a superfície do fio, abrindo a cutícula para que o adesivo (ácido) se ancore de forma ideal. Entender o pH é dominar a retenção.
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h3>3. Adesivo, Saúde Ocular e Técnica Capping</h3>
+        <p>O adesivo é baseado em <strong>Cianoacrilato</strong>. Sua cura (polimerização) é ativada pela umidade do ar e do fio. A <strong>toxidade</strong> é causada pelos vapores de <strong>Formol/Formaldeído</strong> liberados durante a polimerização. Por isso, a cliente deve manter os olhos fechados. O controle de <strong>temperatura e umidade</strong> do ambiente é vital para a velocidade de cura.</p>
+        <p>A <strong>Ficha de Anamnese</strong> é obrigatória para identificar alergias (geralmente ao Cianoacrilato) e contraindicações, como a <strong>Conjuntivite</strong>. O único tratamento para alergia ao cianoacrilato é a <strong>remoção imediata</strong> das extensões.</p>
+        <p>A técnica <strong>Capping</strong> (empilhamento ou sanduíche) é um método avançado de acoplamento que maximiza o ponto de contato entre o fio sintético e o natural, resultando em uma <strong>retenção superior</strong>.</p>
+        
+        <div class="insight">
+            <strong>Insight Prático:</strong> A segurança vem em primeiro lugar. A anamnese é sua proteção legal e de saúde. O ambiente de trabalho é um laboratório: controle a umidade e a temperatura para garantir que o adesivo cure corretamente e minimize a liberação de vapores.
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h3>4. Mapping e Finalização</h3>
+        <p>O <strong>Mapping</strong> é o diagrama de aplicação que define onde cada tamanho e curvatura de fio será colocado, sendo guiado pelo visagismo. Fios <strong>Tecnológicos</strong> (Y, W, 4D) são pré-montados e usados para criar volume leve de forma mais rápida. A técnica <strong>Perfect Line</strong> é essencial para um acabamento profissional, garantindo que a linha superior dos cílios fique perfeitamente alinhada e sem degraus.</p>
+        <p>Para a <strong>remoção</strong> de fios frouxos na manutenção, deve-se usar a técnica de "descascar" ou "quebrar" o adesivo com pinças, <strong>nunca removedor</strong>. O removedor (em gel ou creme) é usado apenas para a remoção total, com a cliente sentada/inclinada para evitar contato com o olho.</p>
+        
+        <div class="insight">
+            <strong>Insight Prático:</strong> A excelência está nos detalhes. O Mapping é o seu plano, e a Perfect Line é o seu padrão de qualidade. Lembre-se que a remoção cuidadosa na manutenção é crucial para a saúde do cílio natural e a fidelização da cliente.
+        </div>
+    </div>
+
+    <div class="quiz-section">
+        <h2>Questionário Interativo (Seleção Aleatória de 10 de 30 Questões)</h2>
+        <div class="score-display" id="scoreDisplay">Acertos: 0 / 10</div>
+
+        <div id="quizForm"></div>
+
+        <button class="submit-btn" id="submitBtn">Enviar Quiz</button>
+
+        <div class="button-group">
+            <button class="reset-btn" id="resetBtn">Limpar Respostas</button>
+            <button class="reshuffle-btn" id="reshuffleBtn">Novas 10 Questões</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Banco de 30 Questões
+    var questionBank = [
+        {
+            id: 'q1',
+            text: 'Qual é o principal componente do adesivo e qual substância liberada durante a polimerização causa toxidade?',
+            options: [
+                'Acrilato e Etanol',
+                'Cianoacrilato e Formaldeído',
+                'Poliéster e Ácido Hialurônico',
+                'Queratina e Metacrilato'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q2',
+            text: 'Qual é o pH natural e saudável do fio de cílio?',
+            options: [
+                'Neutro (pH 7)',
+                'Alcalino (pH 8 a 14)',
+                'Ácido (pH 4.2 a 5.8)',
+                'Super Ácido (pH 1 a 3)'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q3',
+            text: 'Qual é a durabilidade média da Extensão Fio a Fio Clássica?',
+            options: [
+                '7 dias',
+                '21 dias (3 semanas)',
+                '45 dias',
+                '60 dias'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q4',
+            text: 'Qual das três partes do fio é a camada principal com queratina e ligações químicas?',
+            options: [
+                'Medula',
+                'Cutícula',
+                'Córtex',
+                'Bulbo'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q5',
+            text: 'Qual tipo de ligação química é temporária e é rompida quando o cílio é molhado?',
+            options: [
+                'Pontes Dissulfeto',
+                'Pontes Salinas',
+                'Pontes de Hidrogênio',
+                'Pontes de Carbono'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q6',
+            text: 'O que é Visagismo no contexto da extensão de cílios?',
+            options: [
+                'A técnica de acoplamento para maior retenção',
+                'O cálculo volumétrico do peso do fio',
+                'A análise do rosto, olhos e personalidade para definir o design',
+                'O processo de cura do adesivo'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q7',
+            text: 'Qual é a única solução em caso de alergia verdadeira ao Cianoacrilato?',
+            options: [
+                'Usar colírios antialérgicos',
+                'Aplicar compressas frias',
+                'Remoção imediata e total das extensões',
+                'Trocar o adesivo por um hipoalergênico'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q8',
+            text: 'Qual é a função do Primer no procedimento?',
+            options: [
+                'Alcalinizar levemente a superfície do fio para abrir a cutícula',
+                'Diminuir o pH do fio para selar a cutícula',
+                'Apenas limpar o fio de resíduos de maquiagem',
+                'Acelerar a secagem do adesivo'
+            ],
+            correctIndex: 0
+        },
+        {
+            id: 'q9',
+            text: 'Qual técnica maximiza o ponto de contato para retenção superior?',
+            options: [
+                'Perfect Line',
+                'Mapping',
+                'Capping',
+                'Micro Drop'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q10',
+            text: 'O que é a "Perfect Line" na finalização?',
+            options: [
+                'A linha de cola perfeita na base do cílio',
+                'O alinhamento perfeito da linha superior dos cílios, sem degraus',
+                'O uso de apenas um tamanho de fio',
+                'A curvatura ideal para cada tipo de olho'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q11',
+            text: 'Qual é a porcentagem de queratina na composição do fio de cílio?',
+            options: [
+                '50%',
+                '65%',
+                '85%',
+                '95%'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q12',
+            text: 'A polimerização do adesivo é ativada por qual fator?',
+            options: [
+                'Calor do corpo da cliente',
+                'Luz UV',
+                'Umidade do ar e do fio',
+                'Vibração'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q13',
+            text: 'Qual é o intervalo ideal para a manutenção das extensões?',
+            options: [
+                '5 a 10 dias',
+                '15 a 20 dias',
+                '25 a 30 dias',
+                '35 a 40 dias'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q14',
+            text: 'Na manutenção, como deve ser feita a remoção de um fio frouxo?',
+            options: [
+                'Usar removedor em gel diretamente',
+                'Usar pinças para "descascar" ou "quebrar" o adesivo, sem usar removedor',
+                'Puxar o fio com a mão',
+                'Usar água quente'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q15',
+            text: 'Qual é o nome da camada externa do fio, formada por escamas?',
+            options: [
+                'Córtex',
+                'Medula',
+                'Cutícula',
+                'Epiderme'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q16',
+            text: 'Qual é a primeira pessoa a realizar uma extensão Fio a Fio em celebridade?',
+            options: [
+                'Max Factor em Phyllis Haver',
+                'Shu Uemura em Madonna',
+                'Um profissional anônimo em Sophia Loren',
+                'Um maquiador do Teatro Bolshoi'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q17',
+            text: 'Qual é a água e lipídios na composição do fio?',
+            options: [
+                '5% água e 10% lipídios',
+                '12% água e 3% lipídios',
+                '20% água e 5% lipídios',
+                '25% água e 10% lipídios'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q18',
+            text: 'Qual tipo de ligação é alterada quando mudamos os níveis de pH?',
+            options: [
+                'Pontes de Hidrogênio',
+                'Pontes Salinas',
+                'Pontes Dissulfeto',
+                'Pontes de Carbono'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q19',
+            text: 'O que determina se o cílio é encaracolado, liso ou crespo?',
+            options: [
+                'A cutícula',
+                'As pontes de Hidrogênio',
+                'As pontes de Enxofre/Dissulfeto',
+                'A medula'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q20',
+            text: 'Qual é a técnica de empilhamento que permite 50+ dias de retenção?',
+            options: [
+                'Capping Clássico',
+                'Capping Empilhamento',
+                'Capping Sandwich',
+                'Capping Duplo'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q21',
+            text: 'Qual é o número aproximado de fios sintéticos aplicados em cada olho?',
+            options: [
+                '50 a 80 fios',
+                '120 a 180 fios',
+                '200 a 250 fios',
+                '300 a 350 fios'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q22',
+            text: 'O que a Ficha de Anamnese ajuda a identificar?',
+            options: [
+                'Apenas o tipo de pele',
+                'Alergias e contraindicações',
+                'A cor natural dos olhos',
+                'A idade da cliente'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q23',
+            text: 'Qual é a principal contraindicação ocular para o procedimento?',
+            options: [
+                'Olhos secos',
+                'Uso de lentes de contato',
+                'Conjuntivite',
+                'Miopia'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q24',
+            text: 'Qual é a diferença principal entre Cílios Postiços e Fio a Fio?',
+            options: [
+                'O preço',
+                'Postiços são colados na pálpebra, Fio a Fio é colado individualmente no cílio natural',
+                'A durabilidade é igual',
+                'Não há diferença'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q25',
+            text: 'Qual fator influencia a durabilidade das extensões?',
+            options: [
+                'Apenas o adesivo',
+                'Apenas o ciclo de vida natural',
+                'Ciclo de vida, adesivo e alinhamento da extensão',
+                'Apenas o alinhamento'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q26',
+            text: 'Qual é a porcentagem de Carbono na composição do fio?',
+            options: [
+                '15%',
+                '28%',
+                '45%',
+                '65%'
+            ],
+            correctIndex: 2
+        },
+        {
+            id: 'q27',
+            text: 'Qual é o pH do olho para trabalhar com margem de segurança?',
+            options: [
+                'Ácido (4.2 a 5.8)',
+                'Neutro (pH 7)',
+                'Alcalino (pH 8 a 14)',
+                'Super Ácido (pH 1 a 3)'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q28',
+            text: 'Qual é a porcentagem de Enxofre na composição do fio?',
+            options: [
+                '3%',
+                '5%',
+                '7%',
+                '15%'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q29',
+            text: 'Qual tipo de conjuntivite é contagiosa?',
+            options: [
+                'Apenas a alérgica',
+                'Apenas a infecciosa',
+                'Ambas são contagiosas',
+                'Nenhuma é contagiosa'
+            ],
+            correctIndex: 1
+        },
+        {
+            id: 'q30',
+            text: 'Qual é o período de contágio inicial da conjuntivite infecciosa?',
+            options: [
+                'Primeiras 12 horas',
+                'Primeiras 24 horas',
+                'Primeiras 36 a 48 horas',
+                'Primeiros 5 dias'
+            ],
+            correctIndex: 2
+        }
+    ];
+
+    var selectedQuestions = [];
+    var correctAnswers = {};
+
+    // Função para embaralhar array
+    function shuffleArray(array) {
+        var shuffled = array.slice();
+        for (var i = shuffled.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
+        }
+        return shuffled;
+    }
+
+    // Função para embaralhar opções de uma questão
+    function shuffleOptions(question) {
+        var originalOptions = question.options.slice();
+        var shuffledOptions = shuffleArray(originalOptions);
+        var newCorrectIndex = shuffledOptions.indexOf(originalOptions[question.correctIndex]);
+        
+        return {
+            id: question.id,
+            text: question.text,
+            options: shuffledOptions,
+            correctIndex: newCorrectIndex
+        };
+    }
+
+    // Função para selecionar 10 questões aleatórias do banco de 30
+    function selectRandomQuestions() {
+        var shuffledBank = shuffleArray(questionBank);
+        return shuffledBank.slice(0, 10);
+    }
+
+    // Função para gerar o quiz
+    function generateQuiz() {
+        // Seleciona 10 questões aleatórias do banco de 30
+        selectedQuestions = selectRandomQuestions();
+        
+        // Embaralha as opções de cada questão e armazena o índice correto
+        selectedQuestions = selectedQuestions.map(function(q, index) {
+            var shuffled = shuffleOptions(q);
+            correctAnswers['q' + index] = shuffled.correctIndex;
+            shuffled.quizIndex = index;
+            return shuffled;
+        });
+
+        // Gera o HTML das questões
+        var form = document.getElementById('quizForm');
+        form.innerHTML = '';
+
+        selectedQuestions.forEach(function(question, index) {
+            var questionBlock = document.createElement('div');
+            questionBlock.className = 'question-block';
+            
+            var questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = (index + 1) + '. ' + question.text;
+            
+            var optionsGroup = document.createElement('div');
+            optionsGroup.className = 'options-group';
+            
+            question.options.forEach(function(option, optionIndex) {
+                var label = document.createElement('label');
+                label.className = 'option-label';
+                
+                var input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'q' + index;
+                input.value = optionIndex;
+                
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(option));
+                optionsGroup.appendChild(label);
+            });
+            
+            var feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedback-message';
+            feedbackDiv.id = 'feedback' + index;
+            
+            questionBlock.appendChild(questionText);
+            questionBlock.appendChild(optionsGroup);
+            questionBlock.appendChild(feedbackDiv);
+            
+            form.appendChild(questionBlock);
+        });
+    }
+
+    function submitQuiz() {
+        var score = 0;
+        var form = document.getElementById('quizForm');
+
+        selectedQuestions.forEach(function(question, index) {
+            var selectedOption = form.querySelector('input[name="q' + index + '"]:checked');
+            var feedbackElement = document.getElementById('feedback' + index);
+            var labels = form.querySelectorAll('input[name="q' + index + '"]');
+            
+            // Remove classes anteriores
+            labels.forEach(function(input) {
+                input.parentElement.classList.remove('correct', 'wrong');
+            });
+
+            if (selectedOption) {
+                var selectedValue = parseInt(selectedOption.value);
+                var correctValue = correctAnswers['q' + index];
+
+                if (selectedValue === correctValue) {
+                    score++;
+                    selectedOption.parentElement.classList.add('correct');
+                    feedbackElement.textContent = '✓ Correto!';
+                    feedbackElement.className = 'feedback-message correct';
+                } else {
+                    selectedOption.parentElement.classList.add('wrong');
+                    // Destaca a resposta correta
+                    var correctInput = form.querySelector('input[name="q' + index + '"][value="' + correctValue + '"]');
+                    correctInput.parentElement.classList.add('correct');
+                    feedbackElement.textContent = '✗ Errado! A resposta correta foi destacada em verde.';
+                    feedbackElement.className = 'feedback-message wrong';
+                }
+                feedbackElement.style.display = 'block';
+            } else {
+                feedbackElement.textContent = '⚠ Você não respondeu esta questão.';
+                feedbackElement.className = 'feedback-message wrong';
+                feedbackElement.style.display = 'block';
+            }
+        });
+
+        document.getElementById('scoreDisplay').textContent = 'Acertos: ' + score + ' / 10';
+        window.scrollTo(0, 0);
+    }
+
+    function resetQuiz() {
+        var form = document.getElementById('quizForm');
+        form.querySelectorAll('input[type="radio"]').forEach(function(input) {
+            input.checked = false;
+        });
+        document.getElementById('scoreDisplay').textContent = 'Acertos: 0 / 10';
+        
+        var feedbacks = document.querySelectorAll('.feedback-message');
+        feedbacks.forEach(function(feedback) {
+            feedback.style.display = 'none';
+        });
+
+        var labels = document.querySelectorAll('.option-label');
+        labels.forEach(function(label) {
+            label.classList.remove('correct', 'wrong');
+        });
+    }
+
+    function reshuffleQuiz() {
+        generateQuiz();
+        resetQuiz();
+        window.scrollTo(0, 0);
+    }
+
+    // Event listeners
+    document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+    document.getElementById('reshuffleBtn').addEventListener('click', reshuffleQuiz);
+
+    // Gera o quiz ao carregar a página
+    document.addEventListener('DOMContentLoaded', generateQuiz);
+</script>
+
+</body>
+</html>
